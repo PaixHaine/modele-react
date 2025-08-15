@@ -9,8 +9,8 @@ services:
             - MYSQL_PASSWORD=${WORDPRESS_DB_PASSWORD}
             - MYSQL_USER=${WORDPRESS_DB_USER}
         image: mariadb
-        ports:
-            - '3307:3306'
+        networks:
+            - web
     wp-headless:
         build: .
         command: bash -c 'install_wordpress && apache2-foreground'
@@ -18,8 +18,6 @@ services:
         depends_on:
             - db-headless
         env_file: ./.env
-        ports:
-            - '8080:8080'
         user: www-data
         volumes:
             - ./wordpress:/var/www/html
@@ -28,27 +26,29 @@ services:
             - ./docker/postlightheadlesswpstarter.wordpress.xml:/var/www/postlightheadlesswpstarter.wordpress.xml
             - ./docker/images:/var/www/images
             - ./docker/plugins:/var/www/plugins
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.wp-headless.rule=Host(`wp-potter.localdev`)"
+            - "traefik.http.services.wp-headless.loadbalancer.server.port=80"
+        networks:
+            - web
     frontend:
         command: bash -c 'yarn && yarn start'
         container_name: frontend
         expose:
             - '3000'
         image: node:17
-        ports:
-            - '3000:3000'
         user: node
         volumes:
             - ./frontend:/home/node/app
         working_dir: /home/node/app
-    frontend-graphql:
-        command: bash -c 'yarn && yarn start'
-        container_name: frontend-graphql
-        expose:
-            - '3001'
-        image: node:17
-        ports:
-            - '3001:3001'
-        user: node
-        volumes:
-            - ./frontend-graphql:/home/node/app
-        working_dir: /home/node/app
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.frontend.rule=Host(`potter.localdev`)"
+            - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+        networks:
+            - web
+
+networks:
+    web:
+        external: true

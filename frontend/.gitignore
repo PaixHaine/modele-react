@@ -1,6 +1,8 @@
 .next
 node_modules
 .idea
+.config.js.backup
+yarn.lock
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

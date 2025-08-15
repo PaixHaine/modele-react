@@ -2,26 +2,23 @@
 
 [![Build status](https://travis-ci.org/postlight/headless-wp-starter.svg)](https://travis-ci.org/postlight/headless-wp-starter)
 
-[Postlight](https://postlight.com)'s Headless WordPress + React Starter Kit is an automated toolset that will spin up three things:
+[Postlight](https://postlight.com)'s Headless WordPress + React Starter Kit is an automated toolset that will spin up two things:
 
-1.  A WordPress backend that serves its data via the [WP REST API](https://developer.wordpress.org/rest-api/) and [GraphQL](http://graphql.org/).
-2.  A sample React frontend powered by the [WP GraphQL API](https://www.wpgraphql.com/), which supports posts, pages, categories, menus, search, and user sign-in.
-3.  Another sample server-side rendered React frontend using [Next.js](https://github.com/zeit/next.js/) powered by the WP REST API.
+1.  A WordPress backend that serves its data via the [WP REST API](https://developer.wordpress.org/rest-api/).
+2.  A sample server-side rendered React frontend using [Next.js](https://github.com/zeit/next.js/) powered by the WP REST API.
 
 You can read all about it in [this handy introduction](https://postlight.com/trackchanges/introducing-postlights-wordpress-react-starter-kit).
 
 **What's inside:**
 
 - An automated installer which bootstraps a core WordPress installation that provides an established, stable REST API.
-- A plugin which exposes a newer, in-progress [GraphQL API for WordPress](https://wpgraphql.com/).
 - The WordPress plugins you need to set up custom post types and custom fields ([Advanced Custom Fields](https://www.advancedcustomfields.com/) and [Custom Post Type UI](https://wordpress.org/plugins/custom-post-type-ui/)).
 - Plugins which expose those custom fields and WordPress menus in the [WP REST API](https://developer.wordpress.org/rest-api/) ([ACF to WP API](https://wordpress.org/plugins/acf-to-wp-api/) and [WP-REST-API V2 Menus](https://wordpress.org/plugins/wp-rest-api-v2-menus/)).
-- JWT authentication plugins: [JWT WP REST](https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/) and [JWT WP GraphQL](https://github.com/wp-graphql/wp-graphql-jwt-authentication).
+- JWT authentication plugin: [JWT WP REST](https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/).
 - All the starter WordPress theme code and settings headless requires, including pretty permalinks, CORS `Allow-Origin` headers, and useful logging functions for easy debugging.
 - A mechanism for easily importing data from an existing WordPress installation anywhere on the web using [WP Migrate DB Pro](https://deliciousbrains.com/wp-migrate-db-pro/) and its accompanying plugins (license required).
-- A sample, starter frontend React app powered by [GraphQL](http://graphql.org/).
-- Another sample, starter frontend React app, server-side rendered via [Next.js](https://learnnextjs.com/), powered by the WP REST API.
-- [Docker](https://www.docker.com/) containers and scripts to manage them, for easily running the frontend React apps and backend locally or deploying it to any hosting provider with Docker support.
+- A sample, starter frontend React app, server-side rendered via [Next.js](https://learnnextjs.com/), powered by the WP REST API.
+- [Docker](https://www.docker.com/) containers and scripts to manage them, for easily running the frontend React app and backend locally or deploying it to any hosting provider with Docker support.
 
 Let's get started.
 
@@ -29,9 +26,41 @@ Let's get started.
 
 _Prerequisite:_ Before you begin, you need [Docker](https://www.docker.com) installed. On Linux, you might need to install [docker-compose](https://docs.docker.com/compose/install/#install-compose) separately.
 
-Docker Compose builds and starts four containers by default: `db-headless`, `wp-headless`, `frontend` & `frontend-graphql`:
+### Option 1: Avec Traefik (Recommandé)
 
-    docker-compose up -d
+Ce projet est configuré pour fonctionner avec votre infrastructure Traefik globale.
+
+#### Démarrage rapide (Recommandé)
+```bash
+./start.sh
+```
+
+#### Démarrage manuel
+1. **Configurer l'environnement** :
+   ```bash
+   cp env.example .env
+   # Modifier .env si nécessaire
+   ```
+
+2. **Configurer les entrées hosts** :
+   ```bash
+   # Ajouter manuellement dans /etc/hosts :
+   # 127.0.0.1 wp-headless.localdev
+   # 127.0.0.1 frontend.localdev
+   ```
+
+3. **Démarrer les services** :
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Accéder aux services** :
+   - WordPress Admin : [http://wp-headless.localdev/wp-admin](http://wp-headless.localdev/wp-admin)
+   - Frontend React : [http://frontend.localdev](http://frontend.localdev)
+
+### Option 2: Sans Traefik (Ports exposés)
+
+Si vous n'utilisez pas Traefik, vous pouvez modifier le `docker-compose.yml` pour exposer les ports directement.
 
 **Wait a few minutes** for Docker to build the services for the first time. After the initial build, startup should only take a few seconds.
 
@@ -50,10 +79,11 @@ Once the containers are running, you can visit the React frontends and backend W
 
 ## Frontend
 
-This starter kit provides two frontend containers:
+This starter kit provides one frontend container:
 
-- `frontend` container powered by the WP REST API is server-side rendered using Next.js, and exposed on port `3000`: [http://localhost:3000](http://localhost:3000)
-- `frontend-graphql` container powered by GraphQL, exposed on port `3001`: [http://localhost:3001](http://localhost:3001)
+- `frontend` container powered by the WP REST API is server-side rendered using Next.js
+  - Avec Traefik : [http://frontend.localdev](http://frontend.localdev)
+  - Sans Traefik : [http://localhost:3000](http://localhost:3000)
 
 Here's what the frontend looks like:
 
@@ -71,11 +101,10 @@ If you need to restart that process, restart the container:
 
 ## Backend
 
-The `wp-headless` container exposes Apache on host port `8080`:
+The `wp-headless` container exposes Apache:
 
-- Dashboard: [http://localhost:8080/wp-admin](http://localhost:8080/wp-admin) (default credentials `postlight`/`postlight`)
-- REST API: [http://localhost:8080/wp-json](http://localhost:8080/wp-json)
-- GraphQL API: [http://localhost:8080/graphql](http://localhost:8080/graphql)
+- Dashboard: [http://wp-headless.localdev/wp-admin](http://wp-headless.localdev/wp-admin) (default credentials `postlight`/`postlight`)
+- REST API: [http://wp-headless.localdev/wp-json](http://wp-headless.localdev/wp-json)
 
 This container includes some development tools:
 
@@ -124,15 +153,13 @@ If you need more advanced functionality check out the available WP-CLI commands:
 
     docker exec wp-headless wp help migratedb
 
-## Extend the REST and GraphQL APIs
+## Extend the REST API
 
 At this point you can start setting up custom fields in the WordPress admin, and if necessary, creating [custom REST API endpoints](https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/) in the Postlight Headless WordPress Starter theme.
 
 The primary theme code is located in `wordpress/wp-content/themes/postlight-headless-wp`.
 
-You can also [modify and extend the GraphQL API](https://wpgraphql.com/docs/getting-started/about), An example of creating a Custom Type and registering a Resolver is located in: `wordpress/wp-content/themes/postlight-headless-wp/inc/graphql`.
-
-## REST & GraphQL JWT Authentication
+## REST JWT Authentication
 
 To give WordPress users the ability to sign in via the frontend app, use something like the [WordPress Salt generator](https://api.wordpress.org/secret-key/1.1/salt/) to generate a secret for JWT, then define it in `wp-config.php`
 
@@ -140,11 +167,7 @@ For the REST API:
 
     define('JWT_AUTH_SECRET_KEY', 'your-secret-here');
 
-For the GraphQL API:
-
-    define( 'GRAPHQL_JWT_AUTH_SECRET_KEY', 'your-secret-here');
-
-Make sure to read the [JWT REST](https://github.com/Tmeister/wp-api-jwt-auth) and [JWT GraphQL](https://github.com/wp-graphql/wp-graphql-jwt-authentication) documentation for more info.
+Make sure to read the [JWT REST](https://github.com/Tmeister/wp-api-jwt-auth) documentation for more info.
 
 ## Linting
 
