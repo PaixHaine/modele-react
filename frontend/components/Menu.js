@@ -24,7 +24,7 @@ class Menu extends Component {
   }
 
   render() {
-    const { menu } = this.props;
+    const { menu = { items: [] } } = this.props;
     const { token, username } = this.state;
 
     const handleSelectChange = (e) => {

@@ -42,6 +42,12 @@ wp core install \
     --admin_email="$WORDPRESS_ADMIN_EMAIL" \
     --skip-email
 
+# Mettre à jour les URLs si WORDPRESS_SITEURL est défini
+if [ -n "$WORDPRESS_SITEURL" ]; then
+    wp option update home "$WORDPRESS_SITEURL"
+    wp option update siteurl "$WORDPRESS_URL"
+fi
+
 wp language core install fr_FR --activate
 
 wp option update blogdescription "$WORDPRESS_DESCRIPTION"

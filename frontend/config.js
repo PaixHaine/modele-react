@@ -1,4 +1,4 @@
-let wpUrl = 'http://wp-potter.localdev/wp-json';
+let wpUrl = 'http://wp-headless.localdev/wp-json';
 
 // If we're running on Docker, use the WordPress container hostname instead of localhost.
 if (process.env.HOME === '/home/node') {

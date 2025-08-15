@@ -20,22 +20,45 @@ You can read all about it in [this handy introduction](https://postlight.com/tra
 - A sample, starter frontend React app, server-side rendered via [Next.js](https://learnnextjs.com/), powered by the WP REST API.
 - [Docker](https://www.docker.com/) containers and scripts to manage them, for easily running the frontend React app and backend locally or deploying it to any hosting provider with Docker support.
 
-Let's get started.
+## 🚀 Installation rapide (Recommandé)
 
-## Install
+Ce modèle est conçu pour être utilisé avec l'infrastructure Docker-Remus. Pour créer un nouveau projet :
 
-_Prerequisite:_ Before you begin, you need [Docker](https://www.docker.com) installed. On Linux, you might need to install [docker-compose](https://docs.docker.com/compose/install/#install-compose) separately.
-
-### Option 1: Avec Traefik (Recommandé)
-
-Ce projet est configuré pour fonctionner avec votre infrastructure Traefik globale.
-
-#### Démarrage rapide (Recommandé)
 ```bash
-./start.sh
+# Depuis le dossier parent docker-remus
+./add-react-project.sh nom_du_client
+cd nom_du_client
+docker compose up -d --build
 ```
 
-#### Démarrage manuel
+Le script `add-react-project.sh` va automatiquement :
+- Cloner ce modèle
+- Configurer tous les domaines
+- Mettre à jour les fichiers de configuration
+- Créer les entrées dans `/etc/hosts`
+- Rendre les noms de conteneurs uniques
+
+## 📋 URLs d'accès
+
+Une fois le projet créé et démarré :
+- **Frontend React** : [http://nom_du_client.localdev](http://nom_du_client.localdev)
+- **WordPress Admin** : [http://wp-nom_du_client.localdev/wp-admin](http://wp-nom_du_client.localdev/wp-admin)
+- **WordPress REST API** : [http://wp-nom_du_client.localdev/wp-json](http://wp-nom_du_client.localdev/wp-json)
+
+**Identifiants WordPress par défaut :**
+- Utilisateur : `postlight`
+- Mot de passe : `postlight`
+
+## 🔧 Installation manuelle (Avancé)
+
+Si vous souhaitez utiliser ce modèle directement sans l'infrastructure Docker-Remus :
+
+### Prérequis
+- [Docker](https://www.docker.com) installé
+- Sur Linux, vous devrez peut-être installer [docker-compose](https://docs.docker.com/compose/install/#install-compose) séparément.
+
+### Démarrage manuel
+
 1. **Configurer l'environnement** :
    ```bash
    cp env.example .env
@@ -58,24 +81,7 @@ Ce projet est configuré pour fonctionner avec votre infrastructure Traefik glob
    - WordPress Admin : [http://wp-headless.localdev/wp-admin](http://wp-headless.localdev/wp-admin)
    - Frontend React : [http://frontend.localdev](http://frontend.localdev)
 
-### Option 2: Sans Traefik (Ports exposés)
-
-Si vous n'utilisez pas Traefik, vous pouvez modifier le `docker-compose.yml` pour exposer les ports directement.
-
-**Wait a few minutes** for Docker to build the services for the first time. After the initial build, startup should only take a few seconds.
-
-You can follow the Docker output to see build progress and logs:
-
-    docker-compose logs -f
-
-Alternatively, you can use some useful Docker tools like Kitematic and/or VSCode Docker plugin to follow logs, start / stop / remove containers and images.
-
-_Optional:_ you can run the frontend locally while WordPress still runs on Docker:
-
-    docker-compose up -d wp-headless
-    cd frontend && yarn && yarn start
-
-Once the containers are running, you can visit the React frontends and backend WordPress admin in your browser.
+**Note :** Attendez quelques minutes pour que Docker construise les services pour la première fois. Après la construction initiale, le démarrage ne devrait prendre que quelques secondes.
 
 ## Frontend
 

@@ -44,12 +44,19 @@ class Index extends Component {
 
       return { page, posts, pages };
     } catch (err) {
-      if (err.data.status === 403) {
+      if (err.data && err.data.status === 403) {
         tokenExpired();
       }
+      console.error('Error fetching data:', err);
+      
+      // Return default values instead of null to prevent undefined props
+      return {
+        page: { title: { rendered: 'Error Loading Page' }, content: { rendered: '<p>Unable to load content. Please try again later.</p>' } },
+        posts: [],
+        pages: [],
+        headerMenu: []
+      };
     }
-
-    return null;
   }
 
   componentDidMount() {
@@ -63,16 +70,17 @@ class Index extends Component {
           this.setState({ id });
         })
         .catch(err => {
-          if (err.data.status === 403) {
+          if (err.data && err.data.status === 403) {
             tokenExpired();
           }
+          console.error('Error fetching user data:', err);
         });
     }
   }
 
   render() {
     const { id } = this.state;
-    const { posts, pages, headerMenu, page } = this.props;
+    const { posts = [], pages = [], headerMenu = [], page = { title: { rendered: 'Loading...' }, content: { rendered: '' } } } = this.props;
     const fposts = posts.map(post => {
       return (
         <ul key={post.slug}>
